@@ -4,10 +4,14 @@
 # @FileName: FigureCaptionDatasets.py
 # @Software: PyCharm
 # @Blog    ：https://github.com/maqiuping59
+import json
 
 from torch.utils.data import Dataset,DataLoader
 import os
+import numpy as np
 import pandas as pd
+from PIL import Image
+import matplotlib.pylab as plt
 
 
 class ChartQACaptionDatasets(Dataset):
@@ -32,14 +36,47 @@ class ChartQACaptionDatasets(Dataset):
         return image_path,annotation_path,table_path
 
 
-class DVQACaptionDataset(Dataset):
-    def __init__(self,image_path,metadata_path):
-        super(DVQACaptionDataset,self).__init__()
+# class DVQACaptionDataset(Dataset):
+#     def __init__(self,image_path,metadata_path):
+#         super(DVQACaptionDataset,self).__init__()
+#         self.image_path = image_path
+#         self.metadata_path = metadata_path
+#         self.image_list = os.listdir(str(self.image_path))
+#         self.metadata_list = json.load(open(self.metadata_path,"r"))
+#         print(metadata_path[0])
+#
+#     def __len__(self):
+#         return len(self.image_list)
+#
+#     def __getitem__(self,index):
+#         image_name = self.image_list[index]
+
+
+class SimChartCaption(Dataset):
+    def __init__(self,image_path,table_path):
+        super(SimChartCaption,self).__init__()
         self.image_path = image_path
-        self.metadata_path = metadata_path
+        self.table_path = table_path
 
-        self.image_list = os.listdir(str(self.image_path))
+        self.imageList = os.listdir(self.image_path)
+
+    def __len__(self):
+        return len(self.imageList)
+
+    def __getitem__(self,index):
+        image_name = self.imageList[index]
+        image_path = os.path.join(str(self.image_path),image_name)
+        table_path = os.path.join(str(self.table_path),image_name.replace("png","csv"))
+        table = pd.read_csv(table_path)
+
+        return image_path,table
 
 
+mydataset = SimChartCaption("./SimChart9K/png","./SimChart9K/table")
 
-
+for i in range(10):
+    img = Image.open(mydataset[i][0])
+    table = mydataset[i][1]
+    print(i,table,sep='\n')
+    plt.imshow(img.convert('RGB'))
+    plt.show()

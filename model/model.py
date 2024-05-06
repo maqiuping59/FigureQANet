@@ -7,11 +7,13 @@
 import os
 import torch
 import torch.nn as nn
+from transformers import AutoTokenizer,AutoModel
 
 
 class ChartQuestionModel(nn.Module):
-    def __init__(self):
+    def __init__(self,vocab_size,num_answers):
         super(ChartQuestionModel, self).__init__()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # 定义图表特征提取器
         self.chart_encoder=nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
@@ -26,6 +28,10 @@ class ChartQuestionModel(nn.Module):
             nn.GRU(input_size=300, hidden_size=128, num_layers=2, batch_first=True),
             # 更多层...
         )
+        self.tokenizer=AutoTokenizer.from_pretrained('../transformers_bert/microsoft/codebert')
+        self.model = AutoModel.from_pretrained('../transformers_bert/microsoft/codebert')
+        self.model.to(self.device)
+        self.model.eval()
 
         # 定义融合层
         self.fusion_layer=nn.Sequential(
@@ -40,11 +46,14 @@ class ChartQuestionModel(nn.Module):
         chart_features=chart_features.view(chart_features.size(0), -1)
 
         # 问题特征提取
-        question_features, _=self.question_encoder(question)
-        question_features=question_features[:, -1, :]
+        tokens = self.tokenizer(question,return_tensors='pt')
+        question_features=self.text_encoder(tokens).last_hidden_state  # N*768
 
         # 特征融合
         combined_features=torch.cat((chart_features, question_features), dim=1)
         output=self.fusion_layer(combined_features)
 
         return output
+
+
+

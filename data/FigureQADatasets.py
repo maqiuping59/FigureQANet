@@ -9,6 +9,21 @@ import json
 from torch.utils.data import Dataset,DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
+import transformers
+from torchvision import transforms
+
+
+class BaseTransformer():
+    def __init__(self,resize,mean,std):
+        self.basetransform = transforms.Compose([
+            transforms.Resize(resize),
+            transforms.CenterCrop(resize),
+            transforms.ToTensor(),
+            transforms.Normalize(mean,std)
+        ])
+
+    def __call__(self,img):
+        return self.basetransform(img)
 
 
 class ChartQADataset(Dataset):
@@ -42,8 +57,7 @@ class DVQADataset(Dataset):
         self.qa_path = qapath
 
         self.qalist = json.load(open(self.qa_path,"r"))
-        print(len(self.qalist))
-        print(self.qalist[0])
+        self.image_list = os.listdir(self.image_path)
 
     def __len__(self):
         return len(self.qalist)
@@ -53,9 +67,14 @@ class DVQADataset(Dataset):
         template_id = self.qalist[index]["template_id"]
         answer = self.qalist[index]["answer"]
         image_name = self.qalist[index]["image"]
+        answer_box = self.qalist[index]["answer_bbox"]
+        image_path = os.path.join(str(self.image_path),image_name)
+
+        return query,template_id,answer,image_path,answer_box
 
 
-dataset = DVQADataset(imagepath="./DVQA/images", qapath="./DVQA/qa/train_qa.json")
+dataset = DVQADataset(imagepath="./DVQA/images", qapath="./DVQA/qa/preprocessedtrain_qa.json")
+print(dataset[0])
 
 
 
