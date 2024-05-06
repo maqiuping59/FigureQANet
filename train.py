@@ -8,8 +8,7 @@
 
 from torch.utils.data import DataLoader
 
-from model.FigureQADatasets import ChartQuestionDataset
-from model.model import ChartQuestionModel
+from data.FigureQADatasets import ChartQuestionDataset
 
 # 假设你已经有了图表、问题和答案的数据
 charts = ...  # 图表数据
