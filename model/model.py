@@ -33,6 +33,11 @@ class ChartQuestionModel(nn.Module):
         self.model.to(self.device)
         self.model.eval()
 
+        self.text_adapter = nn.Sequential(
+            nn.Linear(768,512),
+            nn.ReLU()
+        )
+
         # 定义融合层
         self.fusion_layer=nn.Sequential(
             nn.Linear(128+64, 256),
