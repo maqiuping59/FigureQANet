@@ -73,8 +73,27 @@ class DVQADataset(Dataset):
         return query,template_id,answer,image_path,answer_box
 
 
-dataset = DVQADataset(imagepath="./DVQA/images", qapath="./DVQA/qa/preprocessedtrain_qa.json")
-print(dataset[0])
+class FigureQADataset(Dataset):
+    def __init__(self, image_path,qa_path):
+        super(FigureQADataset,self).__init__()
+        self.image_list = os.listdir(image_path)
+        self.qa_list = json.load(open(qa_path,"r"))
+        print(self.qa_list.keys())
+        print(len(self.qa_list["qa_pairs"]))
+        print(self.qa_list["total_distinct_questions"])
+        print(self.qa_list["total_distinct_colors"])
+
+    def __len__(self):
+        return len(self.qa_list)
+
+    def __getitem__(self,index):
+        query = self.qa_list[index]
+        return query
+
+
+dataset = FigureQADataset(image_path="./FigureQA/figureqa-train1-v1/png",
+                          qa_path="./FigureQA/figureqa-train1-v1/qa_pairs.json")
+
 
 
 
