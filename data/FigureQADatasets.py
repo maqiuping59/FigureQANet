@@ -77,11 +77,7 @@ class FigureQADataset(Dataset):
     def __init__(self, image_path,qa_path):
         super(FigureQADataset,self).__init__()
         self.image_list = os.listdir(image_path)
-        self.qa_list = json.load(open(qa_path,"r"))
-        print(self.qa_list.keys())
-        print(len(self.qa_list["qa_pairs"]))
-        print(self.qa_list["total_distinct_questions"])
-        print(self.qa_list["total_distinct_colors"])
+        self.qa_list = json.load(open(qa_path,"r"))['qa_pairs']
 
     def __len__(self):
         return len(self.qa_list)
