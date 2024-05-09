@@ -8,6 +8,7 @@ import os
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer,AutoModel
+from vggmodule import VGGModule
 
 
 class ChartQuestionModel(nn.Module):
@@ -15,19 +16,20 @@ class ChartQuestionModel(nn.Module):
         super(ChartQuestionModel, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # 定义图表特征提取器
-        self.chart_encoder=nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            # 更多层...
-        )
+        self.vgg = VGGModule(device=self.device).to(self.device)
+        # self.chart_encoder=nn.Sequential(
+        #     nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(kernel_size=2, stride=2),
+        #     # 更多层...
+        # )
 
         # 定义问题特征提取器
-        self.question_encoder=nn.Sequential(
-            nn.Embedding(num_embeddings=vocab_size, embedding_dim=300),
-            nn.GRU(input_size=300, hidden_size=128, num_layers=2, batch_first=True),
-            # 更多层...
-        )
+        # self.question_encoder = nn.Sequential(
+        #     nn.Embedding(num_embeddings=vocab_size, embedding_dim=300),
+        #     nn.GRU(input_size=300, hidden_size=128, num_layers=2, batch_first=True),
+        #     # 更多层...
+        # )
         self.tokenizer=AutoTokenizer.from_pretrained('../transformers_bert/microsoft/codebert')
         self.model = AutoModel.from_pretrained('../transformers_bert/microsoft/codebert')
         self.model.to(self.device)
@@ -47,16 +49,17 @@ class ChartQuestionModel(nn.Module):
 
     def forward(self, chart, question):
         # 图表特征提取
-        chart_features=self.chart_encoder(chart)
-        chart_features=chart_features.view(chart_features.size(0), -1)
+        # chart_features = self.chart_encoder(chart)
+        chart_features = self.vgg(chart)
+        chart_features = chart_features.view(chart_features.size(0), -1)
 
         # 问题特征提取
         tokens = self.tokenizer(question,return_tensors='pt')
-        question_features=self.text_encoder(tokens).last_hidden_state  # N*768
+        question_features = self.text_encoder(tokens).last_hidden_state  # N*768
 
         # 特征融合
-        combined_features=torch.cat((chart_features, question_features), dim=1)
-        output=self.fusion_layer(combined_features)
+        combined_features = torch.cat((chart_features, question_features), dim=1)
+        output = self.fusion_layer(combined_features)
 
         return output
 

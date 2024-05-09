@@ -1,0 +1,25 @@
+train:
+  datasets:
+    ChartQA:
+      datapath: "./data/ChartQA"
+      phase:
+      - train
+      - val
+      - test
+    DVQA:
+      imagePath: "./data/DVQA/images"
+      qaPath: "data/DVQA/qa"
+    FigureQA:
+      train:
+        imagePath: "./data/FigureQA/figureqa-train1-v1/png"
+        qaPath: "./data/FigureQA/figureqa-train1-v1/qa_pairs.json"
+      val:
+        imagePath: "./data/FigureQA/figureqa-validation1-v1.tar/png"
+        qaPath: "./data/FigureQA/figureqa-validation1-v1.tar/qa_pairs.json"
+      test:
+        imagePath: "./data/FigureQA/test/no_annot_test1/png"
+        qaPath: "./data/FigureQA/test/no_annot_test1/qa_pairs.json"
+
+
+
+
