@@ -9,7 +9,7 @@
 import torch
 from torch import nn
 from einops.einops import rearrange
-from model.LKA import  LKA
+from model import LKA
 from model.AKconv import AKConv
 
 
@@ -23,7 +23,7 @@ def to_4d(x, h, w):
 class AKLKA(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.lka = LKA(dim)
+        self.lka = LKA.LKA(dim)
         self.ak = AKConv(inc=dim, outc=dim, num_param=3)
         self.conv = nn.Conv2d(dim, dim, 1)
 
@@ -107,8 +107,10 @@ class ctf(nn.Module):
         x=self.fu(self.fu(x))+x
         x1, x2 = torch.split(x, self.split_indexes, dim=1)
         return x1,x2
+
+
 if __name__ == '__main__':
     block = ctf(64)
-    input = torch.rand(3, 64, 56, 56)
-    output1,output2 = block(input,input)
-    print(input.size(), output1.size(),output2.size())
+    inputs = torch.rand(3, 64, 56, 56)
+    output1,output2 = block(inputs,inputs)
+    print(inputs.size(), output1.size(),output2.size())

@@ -1,24 +1,58 @@
 train:
+  saveDir: "run/"
   datasets:
     ChartQA:
       datapath: "./data/ChartQA"
-      phase:
-      - train
-      - val
-      - test
+      train:
+        imagePath: "./data/ChartQA/train/png"
+        qaPath:
+          - "./data/ChartQA/train/train_augmented.json"
+          - "./data/ChartQA/train/train_human.json"
+      val:
+        imagePath: "./data/ChartQA/val/png"
+        qaPath:
+          - "./data/ChartQA/val/val_augmented.json"
+          - "./data/ChartQA/val/val_human.json"
+      test:
+        imagePath: "./data/ChartQA/test/png"
+        qaPath:
+          - "./data/ChartQA/test/test_augmented.json"
+          - "./data/ChartQA/test/test_human.json"
     DVQA:
-      imagePath: "./data/DVQA/images"
-      qaPath: "data/DVQA/qa"
+      train:
+        imagePath: "./data/DVQA/images"
+        qaPath:
+          - "./data/DVQA/qa/preprocessedtrain_qa.json"
+      val:
+        imagePath: "./data/DVQA/images"
+        qaPath:
+          - "./data/DVQA/qa/preprocessedval_easy_qa.json"
+          - "./data/DVQA/qa/preprocessedval_hard_qa.json"
+
     FigureQA:
       train:
         imagePath: "./data/FigureQA/figureqa-train1-v1/png"
-        qaPath: "./data/FigureQA/figureqa-train1-v1/qa_pairs.json"
+        qaPath:
+        - "./data/FigureQA/figureqa-train1-v1/qa_pairs.json"
       val:
         imagePath: "./data/FigureQA/figureqa-validation1-v1.tar/png"
-        qaPath: "./data/FigureQA/figureqa-validation1-v1.tar/qa_pairs.json"
+        qaPath:
+        - "./data/FigureQA/figureqa-validation1-v1.tar/qa_pairs.json"
       test:
         imagePath: "./data/FigureQA/test/no_annot_test1/png"
-        qaPath: "./data/FigureQA/test/no_annot_test1/qa_pairs.json"
+        qaPath:
+        - "./data/FigureQA/test/no_annot_test1/qa_pairs.json"
+
+  epochs: 100
+  learning_rate: 0.001
+  batch_size: 32
+  Parallel: True
+  print_freq: 10
+logs:
+  dir_logs: "./logs"
+device: "cpu"
+model:
+
 
 
 

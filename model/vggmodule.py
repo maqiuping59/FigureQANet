@@ -14,17 +14,12 @@ class VGGModule(nn.Module):
     def __init__(self,device):
         super(VGGModule,self).__init__()
         vggModel = vgg16(weights=torchvision.models.VGG16_Weights.IMAGENET1K_FEATURES)
-        model.to(device)
-        model.eval()
+        vggModel.to(device)
+        vggModel.eval()
         self.features = nn.Sequential(*list(vggModel.features.children())[:-1])
 
     def forward(self, x):
         x = self.features(x)
         return x
 
-
-model = VGGModule()
-x = torch.randn(1, 3, 224, 224)
-outputs = model(x)
-print(outputs.shape)
 

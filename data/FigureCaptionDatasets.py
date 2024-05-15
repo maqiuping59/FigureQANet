@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import matplotlib.pylab as plt
+import torch
 
 
 class ChartQACaptionDatasets(Dataset):
@@ -72,11 +73,10 @@ class SimChartCaption(Dataset):
         return image_path,table
 
 
-mydataset = SimChartCaption("./SimChart9K/png","./SimChart9K/table")
 
-for i in range(10):
-    img = Image.open(mydataset[i][0])
-    table = mydataset[i][1]
-    print(i,table,sep='\n')
-    plt.imshow(img.convert('RGB'))
-    plt.show()
+
+
+
+
+
+

@@ -11,13 +11,14 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import transformers
 from torchvision import transforms
+import torch
 
 
-class BaseTransformer():
+class BaseTransform:
     def __init__(self, resize, mean, std):
-        self.baseTransform={
+        self.baseTransform = {
             'train': transforms.Compose([
-                transforms.RandomResizedCrop(224, scale=(0.2, 1.0)),
+                transforms.RandomResizedCrop(resize, scale=(0.2, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean, std)
@@ -30,8 +31,8 @@ class BaseTransformer():
             ])
         }
 
-    def __call__(self, img):
-        return self.baseTransform(img)
+    def __call__(self, img, phase):
+        return self.baseTransform[phase](img)
 
 
 class ChartQADataset(Dataset):
@@ -42,7 +43,7 @@ class ChartQADataset(Dataset):
         self.image_path=os.path.join(self.datapath, self.phase, "png")
         self.transform = transform
 
-        augmented=json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_augmented.json"), "r"))
+        augmented=json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_augmented.json"), "r",encoding="utf-8"))
         human=json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_human.json"), "r"))
         self.data=augmented+human
 
@@ -54,11 +55,12 @@ class ChartQADataset(Dataset):
         answer=self.data[index]["label"]
         image_name=self.data[index]["imgname"]
         image_path=os.path.join(str(self.image_path), image_name)
-        image = Image.open(image_path)
-        image = self.transform(image,self.phase)
+        image = Image.open(image_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image, self.phase)
         # if os.path.exists(image_path):
         #     return query,answer,image_path
-        return query, answer, image
+        return {"question": query, "answer": answer, "image": image}
 
 
 class DVQADataset(Dataset):
@@ -83,25 +85,42 @@ class DVQADataset(Dataset):
         answer_box=self.qalist[index]["answer_bbox"]
         image_path=os.path.join(str(self.image_path), image_name)
         image = Image.open(image_path)
-        image = self.transform(image)
+        if self.transform:
+            image = self.transform(image,self.phase)
 
-        return query, template_id, answer, image_path, answer_box
+        return {"question":query, "template_id":template_id, "answer":answer, "image:":image}
 
 
 class FigureQADataset(Dataset):
-    def __init__(self, image_path, qa_path):
+    def __init__(self, image_path, qa_path,phase,transform=None):
         super(FigureQADataset, self).__init__()
         self.image_path=image_path
         self.image_list=os.listdir(self.image_path)
         self.qa_list=json.load(open(qa_path, "r"))['qa_pairs']
+        self.phase = phase
+        self.transform = transform
 
     def __len__(self):
         return len(self.qa_list)
 
     def __getitem__(self, index):
-        query=self.qa_list[index]
-        image_name=str(query['image_index'])
-        image_path=os.path.join(str(self.image_path), image_name+'.png')
-        question=query['question_string']
-        answer=query['answer']
-        return question, image_path, answer
+        query = self.qa_list[index]
+        image_name = str(query['image_index'])
+        image_path = os.path.join(str(self.image_path), image_name+'.png')
+        question = query['question_string']
+        answer = query['answer']
+        image = Image.open(image_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image,self.phase)
+        return {"question": question, "image": image, "answer": answer}
+
+
+resize = (224,224)
+mean = (0.5, 0.5, 0.5)
+std = (0.4, 0.4, 0.4)
+transform = BaseTransform(resize=resize,mean=mean,std=std)
+dataset = ChartQADataset("./ChartQA", "train",transform=transform)
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
+for i,sample in enumerate(dataloader):
+    print(sample["answer"])
+    exit()
