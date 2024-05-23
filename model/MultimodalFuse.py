@@ -101,18 +101,6 @@ class ModalityFusionModel(nn.Module):
         return output
 
 
-# Example usage:
-# text_embed_size = 768
-# image_embed_size = 2048
-# output_size = 1024
-# heads = 8
-# fusion_model = ModalityFusionModel(text_embed_size, image_embed_size, output_size, heads)
-# text_features = torch.rand(1, 10, text_embed_size)  # BERT-like features
-# image_features = torch.rand(1, 49, image_embed_size)  # ResNet-like features
-# text_mask = None  # or a mask tensor for text if needed
-# image_mask = None  # or a mask tensor for image if needed
-# fused_features = fusion_model(text_features, image_features, text_mask, image_mask)
-
 
 class CrossAttentionFuse(nn.Module):
     def __init__(self, visual_size, text_size, hidden_size,dropout):

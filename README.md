@@ -59,5 +59,9 @@
 - FigureQA
 - SimChart9K
 
+#### 训练
 
+```bash
+python train.py --config './config/train_config.yaml'
+```
 
