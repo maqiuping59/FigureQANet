@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2024/5/9 10:59
 # @Author  : MaQiuping
-# @FileName: vggmodule.py
+# @FileName: VGG.py
 # @Software: PyCharm
 # @Blog    ：https://github.com/maqiuping59
 import torchvision.models
@@ -21,5 +21,6 @@ class VGGModule(nn.Module):
     def forward(self, x):
         x = self.features(x)
         return x
+
 
 

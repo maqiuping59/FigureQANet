@@ -43,9 +43,9 @@ class ChartQADataset(Dataset):
         self.image_path=os.path.join(self.datapath, self.phase, "png")
         self.transform = transform
 
-        augmented=json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_augmented.json"), "r",encoding="utf-8"))
-        human=json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_human.json"), "r"))
-        self.data=augmented+human
+        augmented = json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_augmented.json"), "r",encoding="utf-8"))
+        human = json.load(open(os.path.join(self.datapath, self.phase, self.phase+"_human.json"), "r"))
+        self.data = augmented+human
 
     def __len__(self):
         return len(self.data)
@@ -116,11 +116,9 @@ class FigureQADataset(Dataset):
 
 
 resize = (224,224)
-mean = (0.5, 0.5, 0.5)
-std = (0.4, 0.4, 0.4)
+mean = (0.485, 0.456, 0.406)
+std = (0.229, 0.224, 0.225)
 transform = BaseTransform(resize=resize,mean=mean,std=std)
-dataset = ChartQADataset("./ChartQA", "train",transform=transform)
+dataset = ChartQADataset(r"E:\FigureQANet\data\ChartQA", "train",transform=transform)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
-for i,sample in enumerate(dataloader):
-    print(sample["answer"])
-    exit()
+

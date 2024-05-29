@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2024/4/28 18:22
 # @Author  : Ma Qiu ping
-# @FileName: model.py
+# @FileName: FigureQANet.py
 # @Software: PyCharm
 # @Blog    ：https://github.com/maqiuping59
-import os
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer,AutoModel
-from vggmodule import VGGModule
+from model.models.VGG import VGGModule
 
 
 class ChartQuestionModel(nn.Module):

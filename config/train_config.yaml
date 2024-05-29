@@ -51,7 +51,11 @@ train:
 logs:
   dir_logs: "./logs"
 device: "cpu"
+resume:
+  resume_train: False
+  resume_epoch: 0
 model:
+
 
 
 

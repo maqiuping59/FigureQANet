@@ -9,8 +9,8 @@
 import torch
 from torch import nn
 from einops.einops import rearrange
-from model import LKA
-from model.AKconv import AKConv
+from model.models import LKA
+from model.models.AKconv import AKConv
 
 
 def to_3d(x):
