@@ -7,43 +7,60 @@
 
 import argparse
 import yaml
-from torch.utils.data import DataLoader
-from data.FigureQADatasets import ChartQADataset, DVQADataset
+from data.FigureQADatasets import get_dvqa_loader
+from data.getAnswerSet import DVQA_answer_vocab
 from model.FigureQANet import ChartQuestionModel
 from torch.optim import Adam
 import torch.nn as nn
 import torch
 from torch.optim import lr_scheduler
 from tqdm import tqdm
+import evaluate
+import pprint
+from easydict import EasyDict
+
+import time
 
 
-def train(dataloader,args):
+def train(args):
+    answer_vocab_num = len(DVQA_answer_vocab)
+    dvqa_config = args.train.datasets.DVQA
+    image_dir = dvqa_config.imagePath
+    qa_train = dvqa_config.train.qaPath
+    qa_val = dvqa_config.val.qaPath
+    dataloader = get_dvqa_loader(image_dir=image_dir, qa_train=qa_train, qa_val=qa_val,
+                                 num_workers=args.train.num_workers)
     criterion = nn.CrossEntropyLoss()
-    model = ChartQuestionModel(num_answers=1)
-    optimizer = Adam(model.parameters(), lr=args.learning_rate)
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
+    model = ChartQuestionModel(num_answers=2, answer_vocab_num=answer_vocab_num, pretrained_model=args.pretrain)
+    optimizer = Adam(model.parameters(), lr=args.train.learning_rate)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.train.step_size, gamma=args.train.gamma)
     best_acc = 0
-
-    model.train()
 
     start_epoch = 0
     if args.resume.resume_train and args.resume.resume_epoch > 0:
         start_epoch = args.resume.resume_epoch
         model = torch.load(args.saved_model)
-    for epoch in range(start_epoch, args.num_epochs+1):
+    for epoch in range(start_epoch, args.train.num_epochs+1):
         if args.train.Parallel:
             nn.DataParallel(model).to(args.device)
-            scheduler.step()
-            for i, batch in tqdm(enumerate(dataloader)):
-                questions = batch["question"]
-                answers = batch["answers"]
-                images = batch["image"]
-                outputs = model(questions, images)
-                outputs = outputs.logits()
-                loss = criterion()
+            for phase in ['train', 'val']:
+                if phase == 'train':
+                    model.train()
+                    scheduler.step()
+                else:
+                    model.eval()
+                scheduler.step()
+                for i, batch in tqdm(enumerate(dataloader[phase])):
+                    questions = batch["question"]
+                    answers = batch["answer"]
+                    images = batch["image"]
+                    labels = batch["answer_id"]
+                    outputs = model(images, questions)
+                    outputs = outputs.logits()
+                    # loss = criterion()
 
-                if i % args.train.print_freq == 0:
-                    print("===")
+                    if i % args.train.print_freq == 0:
+                        print("===")
 
 
 def main():
@@ -53,20 +70,8 @@ def main():
     args = parser.parse_args()
     with open(args.config, 'r') as config_file:
         config = yaml.load(config_file, Loader=yaml.FullLoader)
-
-    train_dataset_ChartQA=ChartQADataset("./data/ChartQA", "train")
-    train_dataloader_ChartQA=DataLoader(train_dataset_ChartQA, batch_size=32, shuffle=True)
-
-    val_dataset_ChartQA=ChartQADataset("./data/ChartQA", "val")
-    val_dataloader_ChartQA=DataLoader(val_dataset_ChartQA, batch_size=32, shuffle=False)
-
-    train_dataset_DVQA=DVQADataset("./data/ChartQA", "train", phase="train")
-    train_dataloader_DVQA=DataLoader(train_dataset_ChartQA, batch_size=32, shuffle=True)
-
-    val_dataset_DVQA=DVQADataset("./data/ChartQA", "val",phase="train")
-    val_dataloader_DVQA=DataLoader(val_dataset_ChartQA, batch_size=32, shuffle=False)
-
-    train(train_dataset_ChartQA,args)
+    config = EasyDict(config)
+    train(config)
 
 
 if __name__ == '__main__':

@@ -138,12 +138,38 @@ class CondensedAttentionNeuralBlock(nn.Module):
         return x
 
 
-# 输入 N C H W,  输出 N C H W
-if __name__ == '__main__':
-    block = CondensedAttentionNeuralBlock(32,squeezes=(4, 4), shuffle=4, expan_att_chans=4)
-    input = torch.rand(3, 32, 64, 64)
-    output = block(input)
-    print(input.size(), output.size())
+class CrossAttention(nn.Module):
+    def __init__(self, num_channels, embed_size, dropout=True):
+        """Stacked attention Module
+        """
+        super(CrossAttention, self).__init__()
+        self.ff_image = nn.Linear(embed_size, num_channels)
+        self.ff_questions = nn.Linear(embed_size, num_channels)
+        self.dropout = nn.Dropout(p=0.5)
+        self.ff_attention = nn.Linear(num_channels, 1)
+        self.drop_out = dropout
+        nn.init.xavier_uniform_(self.ff_image.weight)
+        nn.init.xavier_uniform_(self.ff_questions.weight)
+        nn.init.xavier_uniform_(self.ff_attention.weight)
+
+    def forward(self, vi, vq):
+        """Extract feature vector from image vector.
+
+        """
+        hi = self.ff_image(vi)
+        hq = self.ff_questions(vq).unsqueeze(dim=1)
+        ha = torch.tanh(hi+hq)
+        if self.dropout:
+            ha = self.dropout(ha)
+        ha = self.ff_attention(ha)
+        # self.ha = ha
+        pi = torch.softmax(ha, dim=1)
+        self.pi = pi
+        vi_attended = (pi * vi).sum(dim=1)
+        u = vi_attended + vq
+        if self.dropout:
+            u = self.dropout(u)
+        return u
 
 
 

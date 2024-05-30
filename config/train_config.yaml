@@ -19,15 +19,12 @@ train:
           - "./data/ChartQA/test/test_augmented.json"
           - "./data/ChartQA/test/test_human.json"
     DVQA:
+      imagePath: "./data/DVQA/images"
       train:
-        imagePath: "./data/DVQA/images"
-        qaPath:
-          - "./data/DVQA/qa/preprocessedtrain_qa.json"
+        qaPath: "./data/DVQA/qa/preprocessedtrain_qa.json"
       val:
-        imagePath: "./data/DVQA/images"
-        qaPath:
-          - "./data/DVQA/qa/preprocessedval_easy_qa.json"
-          - "./data/DVQA/qa/preprocessedval_hard_qa.json"
+        qaPath: "./data/DVQA/qa/preprocessedval_easy_qa.json"
+#          "./data/DVQA/qa/preprocessedval_hard_qa.json"
 
     FigureQA:
       train:
@@ -48,9 +45,14 @@ train:
   batch_size: 32
   Parallel: True
   print_freq: 10
+  num_workers: 0
+  step_size: 80
+  gamma: 0,08
+  num_epochs: 300
 logs:
   dir_logs: "./logs"
 device: "cpu"
+pretrain: "E:/FigureQANet/transformers_bert/microsoft/codebert"
 resume:
   resume_train: False
   resume_epoch: 0
