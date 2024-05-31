@@ -15,6 +15,8 @@ import torch
 from data.getAnswerSet import DVQA_answer_vocab
 
 
+# bar_train_00026453.png
+
 class BaseTransform:
     def __init__(self, resize, mean, std):
         self.baseTransform = {
@@ -87,6 +89,7 @@ class DVQADataset(Dataset):
         answer_box=self.qalist[index]["answer_bbox"]
         image_path=os.path.join(str(self.image_path), image_name)
         image = Image.open(image_path).convert("RGB")
+
         if self.transform:
             image = self.transform(image,self.phase)
         answer_id = DVQA_answer_vocab[answer]
