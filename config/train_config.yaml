@@ -1,5 +1,5 @@
 train:
-  saveDir: "run/"
+  saveDir: "run"
   datasets:
     ChartQA:
       datapath: "./data/ChartQA"
@@ -39,24 +39,23 @@ train:
         imagePath: "./data/FigureQA/test/no_annot_test1/png"
         qaPath:
         - "./data/FigureQA/test/no_annot_test1/qa_pairs.json"
-
-  epochs: 100
-  learning_rate: 0.001
-  batch_size: 32
+  learning_rate: 0.01
+  batch_size: 80
   Parallel: True
   print_freq: 10
   num_workers: 0
-  step_size: 80
-  gamma: 0,08
-  num_epochs: 300
-logs:
-  dir_logs: "./logs"
-device: "cpu"
-pretrain: "E:/FigureQANet/transformers_bert/microsoft/codebert"
+  step_size: 10
+  gamma: 0.08
+  num_epochs: 100
+  dropout: 0.3
+logs: "logs"
+device: "cuda:0"
+pretrain: "./transformers_bert/microsoft/codebert"
 resume:
   resume_train: False
   resume_epoch: 0
 model:
+  embed_dim: 256
 
 
 
