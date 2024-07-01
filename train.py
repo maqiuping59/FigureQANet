@@ -9,13 +9,13 @@ import argparse
 import os
 
 import yaml
+from data.FigureQADatasets import get_dvqa_loader
 from data.FigureQADatasets import DVQADataset, BaseTransform
 from data.getAnswerSet import DVQA_answer_vocab
 from model.FigureQANet import ChartQuestionModel
 from torch.optim import Adam
 import torch.nn as nn
 import torch
-from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 from tqdm import tqdm
 import evaluate
@@ -42,11 +42,11 @@ def train(args):
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
     transform = BaseTransform(resize, mean, std)
-    train_dataset = DVQADataset(image_dir, qapath=qa_train,phase="train",transform=transform)
-    train_loader = DataLoader(train_dataset, batch_size=args.train.batch_size,shuffle=True)
+    train_dataset = DVQADataset(image_dir,qapath=qa_train,phase="train",transform=transform)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.train.batch_size,shuffle=True)
 
     val_dataset = DVQADataset(image_dir, qapath=qa_val, phase="val", transform=transform)
-    val_loader = DataLoader(val_dataset, batch_size=args.train.batch_size, shuffle=False)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.train.batch_size, shuffle=False)
 
     dataloader = {
         'train': train_loader,
@@ -89,24 +89,26 @@ def train(args):
                 epoch_accuracy.add_batch(predictions=indices, references=labels)
                 acc = metrix['accuracy']
                 msg = "{}| EPOCH:{}/{}|STEP:{}/{}|Loss:{:.4f},Accuracy:{:.2f}".format(phase.upper(),
-                                                                                      epoch+1, args.train.num_epochs,
-                                                                                      batch_idx, int(batch_step_size),
-                                                                                      loss.item(), acc)
+                                                                                      epoch+1,args.train.num_epochs,
+                                                                                      batch_idx,int(batch_step_size),
+                                                                                      loss.item(),acc)
                 print(msg)
                 logging.info(msg)
                 loss.backward()
                 optimizer.step()
 
-            acc_epoch = epoch_accuracy.compute()["accuracy"]
-            writer.add_scalar('Accuracy/{}'.format(phase), acc_epoch, epoch)
-            if acc_epoch>best_acc:
-                best_acc = acc_epoch
-                if not os.path.exists(args.train.saveDir):
-                    os.makedirs(args.train.saveDir)
-                torch.save(model.state_dict(), os.path.join(args.train.saveDir,"best.ptn"))
-            print("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,acc_epoch))
-            logging.info("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,acc_epoch))
+                # if acc>best_acc:
+                #     best_acc = acc
+                #     if not os.path.exists(args.train.saveDir):
+                #         os.makedirs(args.train.saveDir)
+                #     torch.save(model.state_dict(), os.path.join(args.train.saveDir,"best.ptn"))
+
+            accu = epoch_accuracy.compute()
+            writer.add_scalar('Accuracy/{}'.format(phase), accu["accuracy"], epoch)
+            print("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
+            logging.info("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
         scheduler.step()
+
 
 
 def main():
