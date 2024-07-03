@@ -24,6 +24,12 @@ from easydict import EasyDict
 from torch.utils.tensorboard import SummaryWriter
 import logging
 import time
+import random
+
+
+torch.manual_seed(42)
+random.seed(42)
+
 
 
 def train(args):
@@ -62,8 +68,9 @@ def train(args):
 
     accuracy = evaluate.load("./accuracy")
     start_epoch = 0
-    if args.resume.resume_train and args.resume.resume_epoch > 0:
+    if args.resume.resume_train:
         start_epoch = args.resume.resume_epoch
+        ckpt = os.path.join(args.train.checkpoints_dir, 'checkpoint.pth.tar')
         model = torch.load(args.saved_model)
     for epoch in range(start_epoch, args.train.num_epochs+1):
         for phase in ['train', 'val']:
@@ -97,11 +104,11 @@ def train(args):
                 loss.backward()
                 optimizer.step()
 
-                # if acc>best_acc:
-                #     best_acc = acc
-                #     if not os.path.exists(args.train.saveDir):
-                #         os.makedirs(args.train.saveDir)
-                #     torch.save(model.state_dict(), os.path.join(args.train.saveDir,"best.ptn"))
+                if acc>best_acc:
+                    best_acc = acc
+                    if not os.path.exists(args.train.saveDir):
+                        os.makedirs(args.train.saveDir)
+                    torch.save(model.state_dict(), os.path.join(args.train.saveDir,"best.ptn"))
 
             accu = epoch_accuracy.compute()
             writer.add_scalar('Accuracy/{}'.format(phase), accu["accuracy"], epoch)

@@ -38,7 +38,11 @@ class ChartQuestionModel(nn.Module):
         self.attentionFuse = nn.MultiheadAttention(embed_dim, num_heads=8)
         self.fuseLayer = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(5880, answer_vocab_num,bias=True),
+            nn.Linear(5880, 10000,bias=True),
+            nn.BatchNorm1d(10000),
+            nn.ReLU(),
+            nn.Linear(10000, answer_vocab_num, bias=True),
+            nn.Dropout(p=dropout, inplace=True),
             nn.ReLU(inplace=True),
         )
 
