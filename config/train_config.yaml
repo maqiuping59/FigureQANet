@@ -39,14 +39,14 @@ train:
         imagePath: "./data/FigureQA/test/no_annot_test1/png"
         qaPath:
         - "./data/FigureQA/test/no_annot_test1/qa_pairs.json"
-  learning_rate: 0.01
+  learning_rate: 0.001
   batch_size: 64
   Parallel: True
   print_freq: 10
   num_workers: 0
   step_size: 50
   gamma: 0.08
-  num_epochs: 30
+  num_epochs: 10
   dropout: 0.5
 logs: "logs/"
 device: "cuda:0"

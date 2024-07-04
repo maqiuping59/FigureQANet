@@ -26,17 +26,25 @@ import logging
 import time
 import random
 from termcolor import colored
+import datetime
 
 
 torch.manual_seed(42)
 random.seed(42)
 
 
+def getNow():
+    now = datetime.datetime.now()
+    result = now.strftime("%Y%m%d%H%M%S")
+    return result
+
+
 
 def train(args):
-    logging.basicConfig(filename="train.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logFileName = os.path.join(args.train.saveDir, "logs","train" + getNow()+'.log')
+    logging.basicConfig(filename=logFileName, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.info(args)
-    writer = SummaryWriter(args.logs)
+    writer = SummaryWriter(os.path.join(args.train.saveDir, "tensorboard"))
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     answer_vocab_num = len(DVQA_answer_vocab)
@@ -113,8 +121,9 @@ def train(args):
                 msg = "{}| EPOCH:{}/{}|STEP:{}/{}|Loss:{:.4f},Accuracy:{:.2f}".format(phase.upper(),
                                                                                       epoch+1,args.train.num_epochs,
                                                                                       batch_idx,int(batch_step_size),
-                                                                                      loss.item(),acc)
-                print(msg)
+                                                                                  loss.item(),acc)
+                print(msg,end="",flush=True)
+                print("\r", end="", flush=True)
                 logging.info(msg)
                 loss.backward()
                 optimizer.step()
@@ -123,12 +132,14 @@ def train(args):
                     best_acc = acc
                     if not os.path.exists(args.train.saveDir):
                         os.makedirs(args.train.saveDir)
-                    torch.save(model.state_dict(), os.path.join(args.train.saveDir,"best.ptn"))
+                    torch.save(model.state_dict(), os.path.join(args.train.saveDir,"checkpoints","best.ptn"))
 
             accu = epoch_accuracy.compute()
             writer.add_scalar('Accuracy/{}'.format(phase), accu["accuracy"], epoch)
             print("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
             logging.info("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
+            if phase == "train":
+                torch.save(model.state_dict(), os.path.join(args.train.saveDir, "checkpoints", "last.ptn"))
         # scheduler.step()
 
 
