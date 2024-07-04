@@ -1,5 +1,5 @@
 train:
-  saveDir: "results/"
+  saveDir: "run/"
   datasets:
     ChartQA:
       datapath: "./data/ChartQA"
@@ -48,13 +48,12 @@ train:
   gamma: 0.08
   num_epochs: 30
   dropout: 0.5
-logs: "logs"
+logs: "logs/"
 device: "cuda:0"
 pretrain: "./transformers_bert/microsoft/codebert"
 resume:
   resume_train: False
   resume_epoch: 0
-  save_dir: "/save"
 model:
   embed_dim: 256
 

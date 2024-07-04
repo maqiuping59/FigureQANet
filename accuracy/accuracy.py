@@ -44,20 +44,20 @@ Examples:
 
     Example 1-A simple example
         >>> accuracy_metric = evaluate.load("accuracy")
-        >>> results = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0])
-        >>> print(results)
+        >>> run = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0])
+        >>> print(run)
         {'accuracy': 0.5}
 
     Example 2-The same as Example 1, except with `normalize` set to `False`.
         >>> accuracy_metric = evaluate.load("accuracy")
-        >>> results = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0], normalize=False)
-        >>> print(results)
+        >>> run = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0], normalize=False)
+        >>> print(run)
         {'accuracy': 3.0}
 
     Example 3-The same as Example 1, except with `sample_weight` set.
         >>> accuracy_metric = evaluate.load("accuracy")
-        >>> results = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0], sample_weight=[0.5, 2, 0.7, 0.5, 9, 0.4])
-        >>> print(results)
+        >>> run = accuracy_metric.compute(references=[0, 1, 2, 0, 1, 2], predictions=[0, 1, 1, 2, 1, 0], sample_weight=[0.5, 2, 0.7, 0.5, 9, 0.4])
+        >>> print(run)
         {'accuracy': 0.8778625954198473}
 """
 

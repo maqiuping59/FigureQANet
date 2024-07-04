@@ -25,6 +25,7 @@ from torch.utils.tensorboard import SummaryWriter
 import logging
 import time
 import random
+from termcolor import colored
 
 
 torch.manual_seed(42)
@@ -44,9 +45,11 @@ def train(args):
     qa_train = dvqa_config.train.qaPath
     qa_val = dvqa_config.val.qaPath
     # load data
+
     resize = (224, 224)
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
+
     transform = BaseTransform(resize, mean, std)
     train_dataset = DVQADataset(image_dir,qapath=qa_train,phase="train",transform=transform)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.train.batch_size,shuffle=True)
@@ -63,24 +66,36 @@ def train(args):
     model = ChartQuestionModel(embed_dim=args.model.embed_dim,answer_vocab_num=answer_vocab_num,
                                pretrained_model=args.pretrain, dropout=args.train.dropout)
     optimizer = Adam(model.parameters(), lr=args.train.learning_rate)
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=args.train.step_size, gamma=args.train.gamma)
+    # scheduler = lr_scheduler.StepLR(optimizer, step_size=args.train.step_size, gamma=args.train.gamma)
     best_acc = 0
 
     accuracy = evaluate.load("./accuracy")
     start_epoch = 0
+
+    # resume training
     if args.resume.resume_train:
-        start_epoch = args.resume.resume_epoch
-        ckpt = os.path.join(args.train.checkpoints_dir, 'checkpoint.pth.tar')
-        model = torch.load(args.saved_model)
-    for epoch in range(start_epoch, args.train.num_epochs+1):
+        ckpt = os.path.join(args.train.saveDir,'checkpoints', 'last.pt')
+        ckpt = torch.load(ckpt,map_location=lambda storage, loc: storage)
+        model.load_state_dict(ckpt['weights'], strict=False) # strict 允许跳过不匹配的参数
+        optimizer.load_state_dict(ckpt['optimizer'])
+        # scheduler.load_state_dict(ckpt['scheduler'])
+        start_epoch = ckpt['epoch']+1
+        logging.info("resume train from epoch {}".format(colored("{}".format(start_epoch), "green", attrs=['bold'])))
+
+    logging.info("start training:")
+    for epoch in range(start_epoch, args.train.num_epochs):
         for phase in ['train', 'val']:
+            logging.info("<=========>epoch:{}->{}<=========>".format(colored(epoch, "yellow", attrs=['bold']),
+                                                                     colored(phase, "green", attrs=['bold'])))
+            print("<=========>epoch:{}->{}<=========>".format(colored(epoch, "yellow", attrs=['bold']),
+                                                                     colored(phase, "green", attrs=['bold'])))
             epoch_accuracy = evaluate.load("./accuracy")
             if phase == 'train':
                 model.train()
             else:
                 model.eval()
             batch_step_size = len(dataloader[phase].dataset) / args.train.batch_size
-            for batch_idx, batch in tqdm(enumerate(dataloader[phase])):
+            for batch_idx, batch in tqdm(enumerate(iter(dataloader[phase]))):
                 optimizer.zero_grad()
                 questions = batch["question"]
                 images = batch["image"]
@@ -114,7 +129,7 @@ def train(args):
             writer.add_scalar('Accuracy/{}'.format(phase), accu["accuracy"], epoch)
             print("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
             logging.info("{}| EPOCH:{}|Accuracy:{:.2f}".format(phase.upper(),epoch+1,accu["accuracy"]))
-        scheduler.step()
+        # scheduler.step()
 
 
 
