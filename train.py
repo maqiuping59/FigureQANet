@@ -39,6 +39,15 @@ def getNow():
     return result
 
 
+def saveTrainState(epoch,model,optimizer,filename):
+    state = {
+        'epoch': epoch,
+        'weights': model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+    }
+    torch.save(state, filename)
+
+
 
 def train(args):
     logFileName = os.path.join(args.train.saveDir, "logs","train" + getNow()+'.log')

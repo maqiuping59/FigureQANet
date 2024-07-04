@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7a46de57-da2d-42e2-85c5-670e794ecdb7" name="Changes" comment="注释 scheduler">
-      <change beforePath="$PROJECT_DIR$/config/train_config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/train_config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.log" beforeDir="false" />
+    <list default="true" id="7a46de57-da2d-42e2-85c5-670e794ecdb7" name="Changes" comment="修改日志部分">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -276,7 +275,7 @@
       <workItem from="1719796630713" duration="3157000" />
       <workItem from="1719815054433" duration="9968000" />
       <workItem from="1719906073554" duration="17066000" />
-      <workItem from="1720054462801" duration="8302000" />
+      <workItem from="1720054462801" duration="11450000" />
     </task>
     <task id="LOCAL-00001" summary="change file">
       <option name="closed" value="true" />
@@ -342,7 +341,15 @@
       <option name="project" value="LOCAL" />
       <updated>1720057502631</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="修改日志部分">
+      <option name="closed" value="true" />
+      <created>1720063263198</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1720063263198</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -392,7 +399,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="change file" />
     <MESSAGE value="注释 scheduler" />
-    <option name="LAST_COMMIT_MESSAGE" value="注释 scheduler" />
+    <MESSAGE value="修改日志部分" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改日志部分" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FigureQANet$getAnswerSet.coverage" NAME="getAnswerSet Coverage Results" MODIFIED="1716996187015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/data" />
